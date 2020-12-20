@@ -1,4 +1,4 @@
-import { input } from './input';
+import { input } from './2020-day2-input';
 
 let numberOfCorrects = 0;
 input.forEach((entry: string) => {

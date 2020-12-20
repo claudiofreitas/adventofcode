@@ -1,4 +1,4 @@
-import { input } from './expense-input';
+import { input } from './2020-day1-input';
 
 let answer: number;
 input.forEach((number1) => {
