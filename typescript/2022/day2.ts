@@ -1,19 +1,4 @@
-import readline from 'readline';
-import fs from 'fs';
-
-const readLines = async (filepath: string): Promise<string[]> => {
-  const fileStream = fs.createReadStream(filepath);
-  const readLineInterface = readline.createInterface({
-    input: fileStream,
-    crlfDelay: Infinity,
-  });
-
-  const lines: string[] = [];
-  for await (const line of readLineInterface) {
-    lines.push(line);
-  }
-  return lines;
-};
+import { readLines } from './utils/read-lines';
 
 enum Shape {
   ROCK,
