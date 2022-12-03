@@ -1,28 +1,44 @@
 import readline from 'readline';
 import fs from 'fs';
 
-const calculateRoundPoints = (opponentShape: string, myShape: string) => {
+enum Shape {
+  ROCK,
+  PAPER,
+  SCISSORS,
+}
+
+const shapeFromString = (s: string): Shape => {
+  return {
+    A: Shape.ROCK,
+    B: Shape.PAPER,
+    C: Shape.SCISSORS,
+    X: Shape.ROCK,
+    Y: Shape.PAPER,
+    Z: Shape.SCISSORS,
+  }[s];
+};
+
+const calculateRoundPoints = (opponentShape: Shape, myShape: Shape): number => {
   if (
-    (opponentShape === 'A' && myShape === 'Y') ||
-    (opponentShape === 'B' && myShape === 'Z') ||
-    (opponentShape === 'C' && myShape === 'X')
+    (opponentShape === Shape.ROCK && myShape === Shape.PAPER) ||
+    (opponentShape === Shape.PAPER && myShape === Shape.SCISSORS) ||
+    (opponentShape === Shape.SCISSORS && myShape === Shape.ROCK)
   ) {
     return 6;
-  } else if (
-    (opponentShape === 'A' && myShape === 'X') ||
-    (opponentShape === 'B' && myShape === 'Y') ||
-    (opponentShape === 'C' && myShape === 'Z')
-  ) {
+  } else if (opponentShape === myShape) {
     return 3;
   } else {
     return 0;
   }
 };
 
-const SHAPE_TO_VALUE_MAP = {
-  X: 1,
-  Y: 2,
-  Z: 3,
+const valueFromShape = (shape: Shape): number => {
+  const SHAPE_TO_VALUE_MAP: Record<Shape, number> = {
+    [Shape.ROCK]: 1,
+    [Shape.PAPER]: 2,
+    [Shape.SCISSORS]: 3,
+  };
+  return SHAPE_TO_VALUE_MAP[shape];
 };
 
 const calculatePoints = async (input: fs.ReadStream) => {
@@ -33,12 +49,9 @@ const calculatePoints = async (input: fs.ReadStream) => {
 
   let totalPoints = 0;
   for await (const line of readLineInterface) {
-    const [opponentShape, myShape] = line.split(' ') as [
-      'A' | 'B' | 'C',
-      'X' | 'Y' | 'Z'
-    ];
+    const [opponentShape, myShape] = line.split(' ').map(shapeFromString);
     const roundPoints = calculateRoundPoints(opponentShape, myShape);
-    const shapePoints = SHAPE_TO_VALUE_MAP[myShape];
+    const shapePoints = valueFromShape(myShape);
     totalPoints += roundPoints + shapePoints;
   }
   return totalPoints;
