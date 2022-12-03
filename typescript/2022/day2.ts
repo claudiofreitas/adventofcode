@@ -57,4 +57,59 @@ const calculatePoints = async (input: fs.ReadStream) => {
   return totalPoints;
 };
 
-export { calculatePoints };
+enum Strategy {
+  LOSE,
+  DRAW,
+  WIN,
+}
+
+const strategyFromString = (s: string) => {
+  return {
+    X: Strategy.LOSE,
+    Y: Strategy.DRAW,
+    Z: Strategy.WIN,
+  }[s];
+};
+
+const generateMyShape = (opponentShape: Shape, strategy: Strategy): Shape => {
+  if (opponentShape === Shape.ROCK) {
+    return {
+      [Strategy.WIN]: Shape.PAPER,
+      [Strategy.DRAW]: Shape.ROCK,
+      [Strategy.LOSE]: Shape.SCISSORS,
+    }[strategy];
+  } else if (opponentShape === Shape.PAPER) {
+    return {
+      [Strategy.WIN]: Shape.SCISSORS,
+      [Strategy.DRAW]: Shape.PAPER,
+      [Strategy.LOSE]: Shape.ROCK,
+    }[strategy];
+  } else if (opponentShape === Shape.SCISSORS) {
+    return {
+      [Strategy.WIN]: Shape.ROCK,
+      [Strategy.DRAW]: Shape.SCISSORS,
+      [Strategy.LOSE]: Shape.PAPER,
+    }[strategy];
+  }
+};
+
+const calculatePointsWithIntendedStrategy = async (input: fs.ReadStream) => {
+  const readLineInterface = readline.createInterface({
+    input: input,
+    crlfDelay: Infinity,
+  });
+
+  let totalPoints = 0;
+  for await (const line of readLineInterface) {
+    const [opponentShapeString, myStrategyString] = line.split(' ');
+    const opponentShape = shapeFromString(opponentShapeString);
+    const myStrategy = strategyFromString(myStrategyString);
+    const myShape = generateMyShape(opponentShape, myStrategy);
+    const roundPoints = calculateRoundPoints(opponentShape, myShape);
+    const shapePoints = valueFromShape(myShape);
+    totalPoints += roundPoints + shapePoints;
+  }
+  return totalPoints;
+};
+
+export { calculatePoints, calculatePointsWithIntendedStrategy };
