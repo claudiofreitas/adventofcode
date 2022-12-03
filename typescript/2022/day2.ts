@@ -1,6 +1,20 @@
 import readline from 'readline';
 import fs from 'fs';
 
+const readLines = async (filepath: string): Promise<string[]> => {
+  const fileStream = fs.createReadStream(filepath);
+  const readLineInterface = readline.createInterface({
+    input: fileStream,
+    crlfDelay: Infinity,
+  });
+
+  const lines: string[] = [];
+  for await (const line of readLineInterface) {
+    lines.push(line);
+  }
+  return lines;
+};
+
 enum Shape {
   ROCK,
   PAPER,
@@ -41,19 +55,17 @@ const valueFromShape = (shape: Shape): number => {
   return SHAPE_TO_VALUE_MAP[shape];
 };
 
-const calculatePoints = async (input: fs.ReadStream) => {
-  const readLineInterface = readline.createInterface({
-    input: input,
-    crlfDelay: Infinity,
-  });
+const calculatePoints = async (filepath: string) => {
+  const lines = await readLines(filepath);
 
   let totalPoints = 0;
-  for await (const line of readLineInterface) {
+  lines.forEach((line) => {
     const [opponentShape, myShape] = line.split(' ').map(shapeFromString);
     const roundPoints = calculateRoundPoints(opponentShape, myShape);
     const shapePoints = valueFromShape(myShape);
     totalPoints += roundPoints + shapePoints;
-  }
+  });
+
   return totalPoints;
 };
 
@@ -93,14 +105,11 @@ const generateMyShape = (opponentShape: Shape, strategy: Strategy): Shape => {
   }
 };
 
-const calculatePointsWithIntendedStrategy = async (input: fs.ReadStream) => {
-  const readLineInterface = readline.createInterface({
-    input: input,
-    crlfDelay: Infinity,
-  });
+const calculatePointsWithIntendedStrategy = async (filepath: string) => {
+  const lines = await readLines(filepath);
 
   let totalPoints = 0;
-  for await (const line of readLineInterface) {
+  lines.forEach((line) => {
     const [opponentShapeString, myStrategyString] = line.split(' ');
     const opponentShape = shapeFromString(opponentShapeString);
     const myStrategy = strategyFromString(myStrategyString);
@@ -108,7 +117,7 @@ const calculatePointsWithIntendedStrategy = async (input: fs.ReadStream) => {
     const roundPoints = calculateRoundPoints(opponentShape, myShape);
     const shapePoints = valueFromShape(myShape);
     totalPoints += roundPoints + shapePoints;
-  }
+  });
   return totalPoints;
 };
 
