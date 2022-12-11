@@ -1,23 +1,51 @@
 #![allow(dead_code)]
 
+#[derive(Debug)]
+enum Shape {
+    Rock,
+    Paper,
+    Scissors,
+}
+
 pub fn solve_part_1(lines: &Vec<String>) -> u32 {
     let mut total_score: u32 = 0;
     for line in lines {
-        let round_score = match line.as_str() {
-            "A X" => Some(3 + 1),
-            "A Y" => Some(6 + 2),
-            "A Z" => Some(0 + 3),
+        let shape_tuple = line.split(" ").map(|string_shape| {
+            return match string_shape {
+                "A" | "X" => Some(Shape::Rock),
+                "B" | "Y" => Some(Shape::Paper),
+                "C" | "Z" => Some(Shape::Scissors),
+                _ => panic!("Impossible to converto into Shape. Unexpected shape: {string_shape}"),
+            }
+            .unwrap();
+        });
 
-            "B X" => Some(0 + 1),
-            "B Y" => Some(3 + 2),
-            "B Z" => Some(6 + 3),
+        let collected_tuple = shape_tuple.collect::<Vec<Shape>>();
 
-            "C X" => Some(6 + 1),
-            "C Y" => Some(0 + 2),
-            "C Z" => Some(3 + 3),
-            _ => None,
-        };
-        total_score += round_score.unwrap();
+        let outcome_score = match &collected_tuple[..2] {
+            [Shape::Scissors, Shape::Rock] => Some(6),
+            [Shape::Paper, Shape::Scissors] => Some(6),
+            [Shape::Rock, Shape::Paper] => Some(6),
+
+            [Shape::Rock, Shape::Rock] => Some(3),
+            [Shape::Paper, Shape::Paper] => Some(3),
+            [Shape::Scissors, Shape::Scissors] => Some(3),
+
+            [_, _] => Some(0),
+
+            _ => panic!("Impossible to calculate outcome score"),
+        }
+        .unwrap();
+
+        let shape_score = match &collected_tuple[..2] {
+            [_, Shape::Rock] => Some(1),
+            [_, Shape::Paper] => Some(2),
+            [_, Shape::Scissors] => Some(3),
+            _ => panic!("Impossible to calculate shape score"),
+        }
+        .unwrap();
+
+        total_score += outcome_score + shape_score;
     }
 
     return total_score;
