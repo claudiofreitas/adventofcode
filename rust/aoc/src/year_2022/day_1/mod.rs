@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-fn solve_part_1(lines: &Vec<String>) -> u32 {
+fn calculate_total_calories_by_elf(lines: &Vec<String>) -> Vec<u32> {
     let mut total_calories_by_elf: Vec<u32> = Vec::new();
     let mut accumulator: u32 = 0;
     for line in lines {
@@ -14,24 +14,17 @@ fn solve_part_1(lines: &Vec<String>) -> u32 {
     if accumulator != 0 {
         total_calories_by_elf.push(accumulator);
     }
+    return total_calories_by_elf;
+}
+
+pub fn solve_part_1(lines: &Vec<String>) -> u32 {
+    let mut total_calories_by_elf: Vec<u32> = calculate_total_calories_by_elf(&lines);
     total_calories_by_elf.sort_by(|a, b| b.cmp(a));
     return total_calories_by_elf[0];
 }
 
-fn solve_part_2(lines: &Vec<String>) -> u32 {
-    let mut total_calories_by_elf: Vec<u32> = Vec::new();
-    let mut accumulator: u32 = 0;
-    for line in lines {
-        if line.to_string() != "" {
-            accumulator += line.parse::<u32>().unwrap();
-        } else {
-            total_calories_by_elf.push(accumulator);
-            accumulator = 0;
-        }
-    }
-    if accumulator != 0 {
-        total_calories_by_elf.push(accumulator);
-    }
+pub fn solve_part_2(lines: &Vec<String>) -> u32 {
+    let mut total_calories_by_elf: Vec<u32> = calculate_total_calories_by_elf(&lines);
     total_calories_by_elf.sort_by(|a, b| b.cmp(a));
     return total_calories_by_elf[0] + total_calories_by_elf[1] + total_calories_by_elf[2];
 }
