@@ -7,48 +7,52 @@ enum Shape {
     Scissors,
 }
 
-pub fn solve_part_1(lines: &Vec<String>) -> u32 {
-    let mut total_score: u32 = 0;
-    for line in lines {
-        let shape_tuple = line.split(" ").map(|string_shape| {
-            return match string_shape {
-                "A" | "X" => Some(Shape::Rock),
-                "B" | "Y" => Some(Shape::Paper),
-                "C" | "Z" => Some(Shape::Scissors),
-                _ => panic!("Impossible to converto into Shape. Unexpected shape: {string_shape}"),
-            }
-            .unwrap();
-        });
-
-        let collected_tuple = shape_tuple.collect::<Vec<Shape>>();
-
-        let outcome_score = match &collected_tuple[..2] {
-            [Shape::Scissors, Shape::Rock] => Some(6),
-            [Shape::Paper, Shape::Scissors] => Some(6),
-            [Shape::Rock, Shape::Paper] => Some(6),
-
-            [Shape::Rock, Shape::Rock] => Some(3),
-            [Shape::Paper, Shape::Paper] => Some(3),
-            [Shape::Scissors, Shape::Scissors] => Some(3),
-
-            [_, _] => Some(0),
-
-            _ => panic!("Impossible to calculate outcome score"),
+impl Shape {
+    fn from(string_shape: &str) -> Shape {
+        match string_shape {
+            "A" | "X" => Shape::Rock,
+            "B" | "Y" => Shape::Paper,
+            "C" | "Z" => Shape::Scissors,
+            _ => panic!("Impossible to converto into Shape. Unexpected shape: {string_shape}"),
         }
-        .unwrap();
-
-        let shape_score = match &collected_tuple[..2] {
-            [_, Shape::Rock] => Some(1),
-            [_, Shape::Paper] => Some(2),
-            [_, Shape::Scissors] => Some(3),
-            _ => panic!("Impossible to calculate shape score"),
-        }
-        .unwrap();
-
-        total_score += outcome_score + shape_score;
     }
 
-    return total_score;
+    fn score(&self) -> u32 {
+        match self {
+            Shape::Rock => 1,
+            Shape::Paper => 2,
+            Shape::Scissors => 3,
+        }
+    }
+}
+
+pub fn solve_part_1(lines: &Vec<String>) -> u32 {
+    return lines
+        .iter()
+        .map(|line| {
+            let collected_tuple = line
+                .split(" ")
+                .map(|string_shape| Shape::from(string_shape))
+                .collect::<Vec<Shape>>();
+
+            let opponent_shape = &collected_tuple[0];
+            let my_shape = &collected_tuple[1];
+
+            let outcome_score = match (opponent_shape, my_shape) {
+                (Shape::Scissors, Shape::Rock) => 6,
+                (Shape::Paper, Shape::Scissors) => 6,
+                (Shape::Rock, Shape::Paper) => 6,
+
+                (Shape::Rock, Shape::Rock) => 3,
+                (Shape::Paper, Shape::Paper) => 3,
+                (Shape::Scissors, Shape::Scissors) => 3,
+
+                _ => 0,
+            };
+
+            outcome_score + my_shape.score()
+        })
+        .sum();
 }
 
 #[cfg(test)]
