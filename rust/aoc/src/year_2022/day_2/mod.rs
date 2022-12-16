@@ -24,6 +24,22 @@ impl Shape {
             Shape::Scissors => 3,
         }
     }
+
+    fn get_winner(&self) -> Shape {
+        match self {
+            Shape::Rock => Shape::Paper,
+            Shape::Paper => Shape::Scissors,
+            Shape::Scissors => Shape::Rock,
+        }
+    }
+
+    fn get_loser(&self) -> Shape {
+        match self {
+            Shape::Paper => Shape::Rock,
+            Shape::Scissors => Shape::Paper,
+            Shape::Rock => Shape::Scissors,
+        }
+    }
 }
 
 pub fn solve_part_1(lines: &Vec<String>) -> u32 {
@@ -55,9 +71,47 @@ pub fn solve_part_1(lines: &Vec<String>) -> u32 {
         .sum();
 }
 
+#[derive(Debug)]
+enum MatchResult {
+    Win,
+    Draw,
+    Lose,
+}
+
+impl MatchResult {
+    fn from(match_result_string: &str) -> MatchResult {
+        match match_result_string {
+            "X" => MatchResult::Lose,
+            "Y" => MatchResult::Draw,
+            "Z" => MatchResult::Win,
+            _ => panic!(
+                "Unexpected match result. Received {:?}",
+                match_result_string
+            ),
+        }
+    }
+}
+
+pub fn solve_part_2(lines: &Vec<String>) -> u32 {
+    lines
+        .iter()
+        .map(|line| {
+            let (opponent_shape, match_result) = line.split_once(' ').unwrap();
+            let theirs = Shape::from(opponent_shape);
+
+            match MatchResult::from(match_result) {
+                MatchResult::Win => theirs.get_winner().score() + 6,
+                MatchResult::Draw => theirs.score() + 3,
+                MatchResult::Lose => theirs.get_loser().score() + 0,
+            }
+        })
+        .sum::<u32>()
+}
+
 #[cfg(test)]
 mod test {
     use super::solve_part_1;
+    use super::solve_part_2;
     use crate::utils::read_file_lines;
 
     #[test]
@@ -74,5 +128,21 @@ mod test {
         let lines = read_file_lines(file_path);
         let result = solve_part_1(&lines);
         assert_eq!(result, 11_666);
+    }
+
+    #[test]
+    fn it_solves_part_2_sample() {
+        let file_path = "./src/year_2022/day_2/sample.txt";
+        let lines = read_file_lines(file_path);
+        let result = solve_part_2(&lines);
+        assert_eq!(result, 12);
+    }
+
+    #[test]
+    fn it_solves_part_2_real() {
+        let file_path = "./src/year_2022/day_2/input.txt";
+        let lines = read_file_lines(file_path);
+        let result = solve_part_2(&lines);
+        assert_eq!(result, 12767);
     }
 }
