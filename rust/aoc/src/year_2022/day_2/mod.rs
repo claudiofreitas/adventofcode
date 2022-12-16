@@ -42,35 +42,6 @@ impl Shape {
     }
 }
 
-pub fn solve_part_1(lines: &Vec<String>) -> u32 {
-    return lines
-        .iter()
-        .map(|line| {
-            let collected_tuple = line
-                .split(" ")
-                .map(|string_shape| Shape::from(string_shape))
-                .collect::<Vec<Shape>>();
-
-            let opponent_shape = &collected_tuple[0];
-            let my_shape = &collected_tuple[1];
-
-            let outcome_score = match (opponent_shape, my_shape) {
-                (Shape::Scissors, Shape::Rock) => 6,
-                (Shape::Paper, Shape::Scissors) => 6,
-                (Shape::Rock, Shape::Paper) => 6,
-
-                (Shape::Rock, Shape::Rock) => 3,
-                (Shape::Paper, Shape::Paper) => 3,
-                (Shape::Scissors, Shape::Scissors) => 3,
-
-                _ => 0,
-            };
-
-            outcome_score + my_shape.score()
-        })
-        .sum();
-}
-
 #[derive(Debug)]
 enum MatchResult {
     Win,
@@ -90,13 +61,47 @@ impl MatchResult {
             ),
         }
     }
+
+    fn calculate_from(opponent_shape: &Shape, my_shape: &Shape) -> MatchResult {
+        match (&opponent_shape, &my_shape) {
+            (Shape::Scissors, Shape::Rock) => MatchResult::Win,
+            (Shape::Paper, Shape::Scissors) => MatchResult::Win,
+            (Shape::Rock, Shape::Paper) => MatchResult::Win,
+            (Shape::Rock, Shape::Rock) => MatchResult::Draw,
+            (Shape::Paper, Shape::Paper) => MatchResult::Draw,
+            (Shape::Scissors, Shape::Scissors) => MatchResult::Draw,
+            _ => MatchResult::Lose,
+        }
+    }
+
+    fn get_points(&self) -> u32 {
+        match &self {
+            MatchResult::Win => 6,
+            MatchResult::Draw => 3,
+            MatchResult::Lose => 0,
+        }
+    }
+}
+
+pub fn solve_part_1(lines: &Vec<String>) -> u32 {
+    return lines
+        .iter()
+        .map(|line| {
+            let (opponent_shape, my_shape) = line.split_once(" ").unwrap();
+            let opponent_shape = Shape::from(opponent_shape);
+            let my_shape = Shape::from(my_shape);
+
+            let outcome = MatchResult::calculate_from(&opponent_shape, &my_shape);
+            outcome.get_points() + my_shape.score()
+        })
+        .sum();
 }
 
 pub fn solve_part_2(lines: &Vec<String>) -> u32 {
     lines
         .iter()
         .map(|line| {
-            let (opponent_shape, match_result) = line.split_once(' ').unwrap();
+            let (opponent_shape, match_result) = line.split_once(" ").unwrap();
             let theirs = Shape::from(opponent_shape);
 
             match MatchResult::from(match_result) {
@@ -105,7 +110,7 @@ pub fn solve_part_2(lines: &Vec<String>) -> u32 {
                 MatchResult::Lose => theirs.get_loser().score() + 0,
             }
         })
-        .sum::<u32>()
+        .sum()
 }
 
 #[cfg(test)]
