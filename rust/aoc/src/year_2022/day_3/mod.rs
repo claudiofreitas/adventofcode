@@ -9,10 +9,8 @@ fn get_priority(c: &char) -> u32 {
 pub fn solve_part_1(lines: &Vec<String>) -> u32 {
     return lines
         .iter()
-        .map(|rucksack: &String| {
-            let mut partition1 = String::from(rucksack);
-            let partition2 = partition1.split_off(rucksack.len() / 2);
-
+        .map(|rucksack: &String| rucksack.split_at(rucksack.len() / 2))
+        .map(|(partition1, partition2): (&str, &str)| {
             let mut repeating_item: Option<char> = None;
             for char2 in partition2.chars() {
                 if partition1.contains(char2) {
